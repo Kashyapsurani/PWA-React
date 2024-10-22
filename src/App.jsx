@@ -3,8 +3,6 @@ import Header from './components/Header'
 import UserConnect from './components/UserConnect'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
-
-
 function App() {
   return (
     <Router>
@@ -16,7 +14,6 @@ function App() {
         <Route path="/favorites" element={<div>Favorites Page</div>} />
         <Route path="/cart" element={<div>Cart Page</div>} />
       </Routes>
-
     </Router>
   )
 }

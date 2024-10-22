@@ -5,7 +5,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-import PWA from "../assets/1579788831872.jpeg"
+import PWA from "../assets/icon-192x192.jpeg"
 
 function Header() {
     return (
