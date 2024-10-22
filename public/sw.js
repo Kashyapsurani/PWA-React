@@ -4,7 +4,7 @@ this.addEventListener('install', (event) => {
             return cache.addAll([
                 "/App.jsx",
                 "/main.jsx",
-                "/index.html",
+                "/index.html", // This will be used as the fallback page
                 "/vite.svg",
                 "/components/Cart.jsx",
                 "/components/Favorites.jsx",
@@ -17,22 +17,51 @@ this.addEventListener('install', (event) => {
 });
 
 this.addEventListener('fetch', (event) => {
-    console.log('Fetching:', event.request.url); // Log the URL being fetched
+    console.log('Fetching:', event.request.url);
+
     event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                // Check if we received a valid response
-                if (!response || response.status !== 200 || response.type === 'opaque') {
-                    console.error(`Invalid response for ${event.request.url}:`, response);
+        caches.match(event.request) // Check if the request is cached
+            .then((cachedResponse) => {
+                if (cachedResponse) {
+                    // If found in cache, return it
+                    console.log(`Serving ${event.request.url} from cache`);
+                    return cachedResponse;
                 }
-                return response;
-            })
-            .catch((error) => {
-                console.error('Fetch failed, returning fallback:', error);
+
+                // Otherwise, try fetching from the network
+                return fetch(event.request)
+                    .then((networkResponse) => {
+                        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type === 'opaque') {
+                            console.error(`Invalid response for ${event.request.url}:`, networkResponse);
+                            return networkResponse; // Return even if it's invalid
+                        }
+
+                        // Clone the response and cache it for future requests
+                        const responseClone = networkResponse.clone();
+                        caches.open('your-cache-name').then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+
+                        return networkResponse;
+                    })
+                    .catch((error) => {
+                        // Fetch failed, serve a fallback from cache
+                        console.error('Fetch failed, returning fallback:', error);
+
+                        // You can serve a fallback cached page (like index.html)
+                        return caches.match('/index.html')
+                            .then((fallbackResponse) => {
+                                if (fallbackResponse) {
+                                    return fallbackResponse;
+                                } else {
+                                    console.error('Fallback resource not found in cache.');
+                                    return new Response('Network error and no fallback available.', {
+                                        status: 503,
+                                        statusText: 'Service Unavailable'
+                                    });
+                                }
+                            });
+                    });
             })
     );
 });
-
-
-
-
