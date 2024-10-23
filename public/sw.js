@@ -11,6 +11,7 @@ this.addEventListener('install', (event) => {
                 "/components/Header.jsx",
                 "/components/UserConnect.jsx",
                 "/assets/1579788831872.jpeg",
+                "/manifest.json"
             ]);
         })
     );
